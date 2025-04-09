@@ -8,6 +8,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using Steamworks;
 using System.ComponentModel.Design;
+using static RepoSteamIdJoin.MenuManagerPatches;
 
 namespace RepoSteamIdJoin
 {
@@ -42,7 +43,7 @@ namespace RepoSteamIdJoin
             RepoSteamIdJoin.Logger.LogInfo("Beginning HostLobby postfix");
             RepoSteamIdJoin.Logger.LogInfo("Your lobby code is : " + _lobby.Id.ToString());
             RepoSteamIdJoin.displayedLobbyId = _lobby.Id.ToString();
-            GUIUtility.systemCopyBuffer = _lobby.Id.ToString();
+            //GUIUtility.systemCopyBuffer = _lobby.Id.ToString();
             currentLobbyId = _lobby.Id.ToString();
         }
 
@@ -61,16 +62,18 @@ namespace RepoSteamIdJoin
         }
 
         //public static async void RequestGameLobbyJoin(ulong lobbyId)
-        public static void RequestGameLobbyJoin(ulong lobbyId)
+        public static bool RequestGameLobbyJoin(ulong lobbyId)
         {
             if (!joinedALobbyBefore) 
             {
                 currentInstance.OnGameLobbyJoinRequested(new Lobby(lobbyId), new SteamId());
-                //joinedALobbyBefore = true;
+                joinedALobbyBefore = true;
+                return true;
             }
             else
             {
                 RepoSteamIdJoin.Logger.LogError("You have already attempted to join a lobby this session! Please restart the game to prevent any unintentional behaviour from occurring. ");
+                return false;
             }
 
             // Call OnGameLobbyJoinRequested

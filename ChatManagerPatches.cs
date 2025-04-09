@@ -33,6 +33,10 @@ namespace RepoSteamIdJoin
                     __instance.chatMessage = "Ollie is the cutest!";
                     return true;
                 }
+                else if (__instance.chatMessage == "balls")
+                {
+                    return true;
+                }
             }
 
             return true;
