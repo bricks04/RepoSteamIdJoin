@@ -26,15 +26,6 @@ namespace RepoSteamIdJoin
 
         private void Awake()
         {
-            var joiningLobbyId = base.Config.Bind(
-                "Variables",
-                "JoiningKey",
-                (ulong) 0000,
-                "The Lobby ID to attempt to join."
-            );
-
-            joiningId = (ulong) joiningLobbyId.Value;
-
             Instance = this;
 
             // Prevent the plugin from being deleted

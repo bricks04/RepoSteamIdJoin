@@ -28,6 +28,16 @@ namespace RepoSteamIdJoin
             currentInstance = __instance;
         }
 
+        [HarmonyPatch("LeaveLobby")]
+        [HarmonyPostfix]
+        private static void UpdatePostFix(SteamManager __instance)
+        {
+            if (currentInstance != __instance)
+            {
+                currentInstance = __instance;
+            }
+        }
+        
         [HarmonyPatch("OnGameLobbyJoinRequested")]
         [HarmonyPrefix]
         private static void Start_Prefix(SteamManager __instance)
@@ -53,6 +63,13 @@ namespace RepoSteamIdJoin
         {
             RepoSteamIdJoin.Logger.LogInfo("Beginning UnlockLobby Postfix");
             // __instance.currentLobby.SetInvisible();
+        }
+
+        [HarmonyPatch("HostLobby")]
+        [HarmonyPostfix]
+        public static void HostLobby()
+        {
+            joinedALobbyBefore = true;
         }
 
         public static void CopyLobbyId()
