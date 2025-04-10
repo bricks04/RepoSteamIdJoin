@@ -10,6 +10,8 @@ using Steamworks;
 using static RepoSteamIdJoin.SteamManagerPatches;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using static SemiFunc;
 
 namespace RepoSteamIdJoin
 {
@@ -36,6 +38,14 @@ namespace RepoSteamIdJoin
                 else if (__instance.chatMessage == "balls")
                 {
                     return true;
+                }
+                else if (Regex.IsMatch(__instance.chatMessage, "^/kick\\s"))
+                {
+                    RepoSteamIdJoin.Logger.LogInfo("Kick command called!");
+                    string targetToKick = __instance.chatMessage.Substring(6);
+                    RepoSteamIdJoin.Logger.LogInfo(targetToKick);
+                    TryToKick(targetToKick);
+                    return false;
                 }
             }
 

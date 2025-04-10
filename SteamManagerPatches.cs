@@ -9,6 +9,8 @@ using Photon.Realtime;
 using Steamworks;
 using System.ComponentModel.Design;
 using static RepoSteamIdJoin.MenuManagerPatches;
+using static UnityEngine.InputSystem.InputRemoting;
+using System.Text.RegularExpressions;
 
 namespace RepoSteamIdJoin
 {
@@ -26,6 +28,13 @@ namespace RepoSteamIdJoin
         {
             RepoSteamIdJoin.Logger.LogInfo("SteamManager awoken!");
             currentInstance = __instance;
+        }
+
+        [HarmonyPatch("OnEnable")]
+        [HarmonyPostfix]
+        private static void OnEnablePostFix(SteamManager __instance)
+        {
+            SteamMatchmaking.OnChatMessage += ProcessChatSignal;
         }
 
         [HarmonyPatch("LeaveLobby")]
@@ -106,6 +115,47 @@ namespace RepoSteamIdJoin
             //    RunManager.instance.ChangeLevel(_completedLevel: true, _levelFailed: false, RunManager.ChangeLevelType.LobbyMenu);
             //}
             //currentInstance.joinLobby = true;
+        }
+
+        public static void TryToKick(string user)
+        {
+            RepoSteamIdJoin.Logger.LogInfo(currentInstance.currentLobby.Id);
+            RepoSteamIdJoin.Logger.LogInfo(SteamClient.SteamId);
+            if (currentInstance.currentLobby.IsOwnedBy(SteamClient.SteamId))
+            {
+                RepoSteamIdJoin.Logger.LogInfo(currentInstance.currentLobby.Members);
+                foreach (Friend member in currentInstance.currentLobby.Members)
+                {
+                    RepoSteamIdJoin.Logger.LogInfo(member.Name);
+                    if (member.Name == user)
+                    {
+                        RepoSteamIdJoin.Logger.LogInfo("Found the user to kick!");
+                        currentInstance.currentLobby.SendChatString("~k" + member.Id.ToString());
+                    }
+                }
+                RepoSteamIdJoin.Logger.LogInfo("List over");
+            }
+            else
+            {
+                RepoSteamIdJoin.Logger.LogWarning("Attempted to kick, but is not the lobby owner.");
+            }
+        }
+
+        private static void ProcessChatSignal(Lobby lobby, Friend friend, string arg3)
+        {
+            RepoSteamIdJoin.Logger.LogInfo("Recieved signal!");
+            RepoSteamIdJoin.Logger.LogInfo(arg3);
+            if (Regex.IsMatch(arg3, "^~k"))
+            {
+                string targetToKick = arg3.Substring(2);
+                RepoSteamIdJoin.Logger.LogInfo(targetToKick);
+                if (SteamClient.SteamId.ToString() == targetToKick)
+                {
+                    RepoSteamIdJoin.Logger.LogWarning("I have been requested to be kicked!");
+                    currentInstance.LeaveLobby();
+                }
+            }
+            
         }
     }
 }
