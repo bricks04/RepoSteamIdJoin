@@ -93,7 +93,7 @@ namespace RepoSteamIdJoin
                 else
                 {
                     RequestGameLobbyJoin(result);
-                    attemptedToJoin = true;
+                    //attemptedToJoin = true;
                 }
             }
             else

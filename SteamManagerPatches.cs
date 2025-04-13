@@ -15,27 +15,24 @@ namespace RepoSteamIdJoin
     [HarmonyPatch(typeof(SteamManager))]
     public class SteamManagerPatches
     {
-        static SteamManager currentInstance;
-
         public static string currentLobbyId = "";
         public static bool joinedALobbyBefore = false;
+
+        public static Traverse traversedCurrentInstance = Traverse.Create(typeof(SteamManager));
 
         [HarmonyPatch("Awake")]
         [HarmonyPostfix]
         private static void AwakePostFix(SteamManager __instance)
         {
             RepoSteamIdJoin.Logger.LogInfo("SteamManager awoken!");
-            currentInstance = __instance;
+
         }
 
         [HarmonyPatch("LeaveLobby")]
         [HarmonyPostfix]
         private static void UpdatePostFix(SteamManager __instance)
         {
-            if (currentInstance != __instance)
-            {
-                currentInstance = __instance;
-            }
+
         }
         
         [HarmonyPatch("OnGameLobbyJoinRequested")]
@@ -54,6 +51,9 @@ namespace RepoSteamIdJoin
             RepoSteamIdJoin.Logger.LogInfo("Your lobby code is : " + _lobby.Id.ToString());
             RepoSteamIdJoin.displayedLobbyId = _lobby.Id.ToString();
             //GUIUtility.systemCopyBuffer = _lobby.Id.ToString();
+            //Try enforce application of new SteamManager Instance to make sure that future calls are done to the most up to date one?
+            RepoSteamIdJoin.Logger.LogInfo(SteamManager.instance.currentLobby);
+            RepoSteamIdJoin.Logger.LogInfo(SteamManager.instance.currentLobby.Id);
             currentLobbyId = _lobby.Id.ToString();
         }
 
@@ -63,13 +63,22 @@ namespace RepoSteamIdJoin
         {
             RepoSteamIdJoin.Logger.LogInfo("Beginning UnlockLobby Postfix");
             // __instance.currentLobby.SetInvisible();
+            RepoSteamIdJoin.Logger.LogInfo(SteamManager.instance.currentLobby);
+            RepoSteamIdJoin.Logger.LogInfo(SteamManager.instance.currentLobby.Id);
+        }
+
+        [HarmonyPatch("LeaveLobby")]
+        [HarmonyPostfix]
+        private static void LeaveLobbyPostFix(SteamManager __instance)
+        {
+            //currentInstance = __instance;
         }
 
         [HarmonyPatch("HostLobby")]
         [HarmonyPostfix]
         public static void HostLobby()
         {
-            joinedALobbyBefore = true;
+            //joinedALobbyBefore = true;
         }
 
         public static void CopyLobbyId()
@@ -83,8 +92,8 @@ namespace RepoSteamIdJoin
         {
             if (!joinedALobbyBefore) 
             {
-                currentInstance.OnGameLobbyJoinRequested(new Lobby(lobbyId), new SteamId());
-                joinedALobbyBefore = true;
+                SteamManager.instance.OnGameLobbyJoinRequested(new Lobby(lobbyId), new SteamId());
+                //joinedALobbyBefore = true;
                 return true;
             }
             else
