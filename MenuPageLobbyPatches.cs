@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace RepoSteamIdJoin
 {
@@ -22,6 +23,19 @@ namespace RepoSteamIdJoin
         public static void ChangeChatHelpText(string targetText)
         {
             currentInstance.chatPromptText.text = targetText;
+        }
+
+        [HarmonyPatch("PlayerAdd")]
+        [HarmonyPrefix]
+        private static void PlayerAddPostFix(MenuPageLobby __instance, PlayerAvatar player)
+        {
+            if (ulong.TryParse(player.steamID, out ulong result))
+            {
+                if (!SteamManagerPatches.CheckPlayerJoin(result))
+                {
+                    player.playerName = "<color=#d60e54>" + player.playerName + "</color>";
+                }
+            }
         }
     }
 }

@@ -17,12 +17,57 @@ namespace RepoSteamIdJoin
     {
         public static string currentLobbyId = "";
 
+        public static Dictionary<ulong, int> playerJoinPair = new Dictionary<ulong, int>();
+        public static int maxPermittableJoins = 1;
+
+        public static bool CheckPlayerJoin(ulong checkPlayerId)
+        {
+            if (playerJoinPair.TryGetValue(checkPlayerId, out int value))
+            {
+                RepoSteamIdJoin.Logger.LogWarning("User " + checkPlayerId.ToString() + " has a record in playerJoinPair!");
+                if (value >= maxPermittableJoins)
+                {
+                    RepoSteamIdJoin.Logger.LogWarning("User " + checkPlayerId.ToString() + " has " + value.ToString() + " joins, more then the permittable joins!");
+                    return false;
+                }
+                else
+                {
+                    playerJoinPair[checkPlayerId] = value + 1;
+                }
+            }
+            else
+            {
+                RepoSteamIdJoin.Logger.LogInfo("User " + checkPlayerId.ToString() + " has no record in playerJoinPair");
+                playerJoinPair.Add(checkPlayerId, 1);
+            }
+            return true;
+        }
+
         [HarmonyPatch("Awake")]
         [HarmonyPostfix]
         private static void AwakePostFix(SteamManager __instance)
         {
             RepoSteamIdJoin.Logger.LogInfo("SteamManager awoken!");
 
+        }
+
+        [HarmonyPatch("OnLobbyMemberJoined")]
+        [HarmonyPostfix]
+        private static void OnLobbyMemberJoinedPostFix(SteamManager __instance, Lobby _lobby, Friend _friend)
+        {
+            RepoSteamIdJoin.Logger.LogInfo("Logging a join from id " + _friend.Id.ToString());
+            if (__instance.currentLobby.IsOwnedBy(SteamClient.SteamId))
+            {
+                if (CheckPlayerJoin(_friend.Id.Value))
+                {
+                    RepoSteamIdJoin.Logger.LogInfo("User is permitted to join the lobby!");
+                }
+                else
+                {
+                    RepoSteamIdJoin.Logger.LogWarning("User is not permitted to join the lobby!");
+                }
+            }
+            //d60e54
         }
 
         [HarmonyPatch("LeaveLobby")]
