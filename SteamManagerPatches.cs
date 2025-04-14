@@ -18,7 +18,7 @@ namespace RepoSteamIdJoin
         public static string currentLobbyId = "";
 
         public static Dictionary<ulong, int> playerJoinPair = new Dictionary<ulong, int>();
-        public static int maxPermittableJoins = 1;
+        public static int maxPermittableJoins = 0;
 
         public static bool CheckPlayerJoin(ulong checkPlayerId)
         {
@@ -36,6 +36,7 @@ namespace RepoSteamIdJoin
                 }
                 else
                 {
+                    RepoSteamIdJoin.Logger.LogInfo("User " + checkPlayerId.ToString() + " has " + value.ToString() + " joins. Adding one.");
                     playerJoinPair[checkPlayerId] = value + 1;
                 }
             }
@@ -60,17 +61,17 @@ namespace RepoSteamIdJoin
         private static void OnLobbyMemberJoinedPostFix(SteamManager __instance, Lobby _lobby, Friend _friend)
         {
             RepoSteamIdJoin.Logger.LogInfo("Logging a join from id " + _friend.Id.ToString());
-            if (__instance.currentLobby.IsOwnedBy(SteamClient.SteamId))
-            {
-                if (CheckPlayerJoin(_friend.Id.Value))
-                {
-                    RepoSteamIdJoin.Logger.LogInfo("User is permitted to join the lobby!");
-                }
-                else
-                {
-                    RepoSteamIdJoin.Logger.LogWarning("User is not permitted to join the lobby!");
-                }
-            }
+            //if (__instance.currentLobby.IsOwnedBy(SteamClient.SteamId))
+            //{
+            //    if (CheckPlayerJoin(_friend.Id.Value))
+            //    {
+            //        RepoSteamIdJoin.Logger.LogInfo("User is permitted to join the lobby!");
+            //    }
+            //    else
+            //    {
+            //        RepoSteamIdJoin.Logger.LogWarning("User is not permitted to join the lobby!");
+            //    }
+            //}
             //d60e54
         }
 
