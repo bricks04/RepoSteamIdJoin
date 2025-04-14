@@ -22,6 +22,10 @@ namespace RepoSteamIdJoin
 
         public static bool CheckPlayerJoin(ulong checkPlayerId)
         {
+            if (maxPermittableJoins == 0)
+            {
+                return true;
+            }
             if (playerJoinPair.TryGetValue(checkPlayerId, out int value))
             {
                 RepoSteamIdJoin.Logger.LogWarning("User " + checkPlayerId.ToString() + " has a record in playerJoinPair!");
