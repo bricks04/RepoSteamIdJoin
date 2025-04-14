@@ -25,8 +25,6 @@ namespace RepoSteamIdJoin
 
         public static GameObject uiTarget;
 
-        public static bool attemptedToJoin = false;
-
         private static int easter = 0;
 
         [HarmonyPatch("Start")]
@@ -79,22 +77,8 @@ namespace RepoSteamIdJoin
             {
                 RepoSteamIdJoin.Logger.LogInfo(result);
                 RepoSteamIdJoin.Logger.LogInfo("Parse was successful!");
-                if (attemptedToJoin)
-                {
-                    if (RandomNumberGenerator.GetInt32(99) > 90)
-                    {
-                        GeneratePopUp("Balls", "Humongous balls", "Ok");
-                    }
-                    else
-                    {
-                        GeneratePopUp("ERROR", "Please restart your game before rejoining lobbies", "Ok");
-                    }
-                }
-                else
-                {
-                    RequestGameLobbyJoin(result);
-                    //attemptedToJoin = true;
-                }
+                RequestGameLobbyJoin(result);
+                //attemptedToJoin = true;
             }
             else
             {

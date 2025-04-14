@@ -16,9 +16,6 @@ namespace RepoSteamIdJoin
     public class SteamManagerPatches
     {
         public static string currentLobbyId = "";
-        public static bool joinedALobbyBefore = false;
-
-        public static Traverse traversedCurrentInstance = Traverse.Create(typeof(SteamManager));
 
         [HarmonyPatch("Awake")]
         [HarmonyPostfix]
@@ -88,19 +85,9 @@ namespace RepoSteamIdJoin
         }
 
         //public static async void RequestGameLobbyJoin(ulong lobbyId)
-        public static bool RequestGameLobbyJoin(ulong lobbyId)
+        public static void RequestGameLobbyJoin(ulong lobbyId)
         {
-            if (!joinedALobbyBefore) 
-            {
-                SteamManager.instance.OnGameLobbyJoinRequested(new Lobby(lobbyId), new SteamId());
-                //joinedALobbyBefore = true;
-                return true;
-            }
-            else
-            {
-                RepoSteamIdJoin.Logger.LogError("You have already attempted to join a lobby this session! Please restart the game to prevent any unintentional behaviour from occurring. ");
-                return false;
-            }
+            SteamManager.instance.OnGameLobbyJoinRequested(new Lobby(lobbyId), new SteamId());
 
             // Call OnGameLobbyJoinRequested
             //Debug.Log("Steam: Game lobby join requested: " + lobbyId.ToString());
