@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,12 +30,19 @@ namespace RepoSteamIdJoin
         [HarmonyPrefix]
         private static void PlayerAddPostFix(MenuPageLobby __instance, PlayerAvatar player)
         {
-            if (ulong.TryParse(player.steamID, out ulong result))
+            if (SteamManager.instance.currentLobby.IsOwnedBy(SteamClient.SteamId))
             {
-                if (!SteamManagerPatches.CheckPlayerJoin(result))
+                if (ulong.TryParse(player.steamID, out ulong result))
                 {
-                    player.playerName = "<color=#d60e54>" + player.playerName + "</color>";
+                    if (!SteamManagerPatches.CheckPlayerJoin(result))
+                    {
+                        player.playerName = "<color=#d60e54>" + player.playerName + "</color>";
+                    }
                 }
+            }
+            else
+            {
+                RepoSteamIdJoin.Logger.LogInfo("I am not the lobby owner, so no pre-processing player names");
             }
         }
     }
